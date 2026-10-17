@@ -7,378 +7,658 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-  /* Layout: split hero (pitch left, live charger queue right), then a single column of plain sections. The queue panel is the one bold element. */
+  /* Layout: sticky brand header, six hash-routed pages, each a stack of full-width bands with a 72rem inner column. Brand = the logo's leaf green + charge purple. */
   :root {
-    --bg: #f2f4f7;
+    --bg: #f6f8f4;
     --surface: #ffffff;
-    --sunk: #e7ebf1;
-    --fg: #121a2b;
-    --muted: #5a6478;
-    --line: #d5dbe5;
-    --accent: #2544d6;
-    --accent-ink: #ffffff;
-    --charging: #2544d6;
-    --hold: #b7790a;
-    --hold-bg: #fbefd6;
-    --free: #1f8a52;
-    --free-bg: #dcf2e5;
-    --display: "Archivo", "Arial Narrow", Arial, sans-serif;
-    --body: "Instrument Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --sunk: #eef1ec;
+    --fg: #1d1745;
+    --muted: #5d5a78;
+    --line: #dfe3dc;
+    --green: #2f9a3f;
+    --green-soft: #e1f3e2;
+    --purple: #5b2db3;
+    --purple-soft: #ece5fa;
+    --on-brand: #ffffff;
+    --hold: #a66a00;
+    --hold-bg: #fcefd2;
+    --grad: linear-gradient(120deg, #2f9a3f 0%, #2a7f6a 45%, #5b2db3 100%);
+    --display: "Lexend", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --body: "Figtree", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #0d1220; --surface: #151c2e; --sunk: #1b2338; --fg: #e6eaf2; --muted: #98a2b6; --line: #263048;
-      --accent: #7b93ff; --accent-ink: #0d1220; --charging: #7b93ff;
-      --hold: #f2b84b; --hold-bg: #3a2c10; --free: #4cc38a; --free-bg: #12301f;
+      --bg: #100e1d; --surface: #1a1730; --sunk: #221e3b; --fg: #eeebfa; --muted: #a9a4c4; --line: #2e2950;
+      --green: #6fd17f; --green-soft: #173521; --purple: #b195ff; --purple-soft: #2c2252; --on-brand: #100e1d;
+      --hold: #f2b84b; --hold-bg: #3a2c10;
+      --grad: linear-gradient(120deg, #1f6e2b 0%, #1d5a52 45%, #45238a 100%);
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #0d1220; --surface: #151c2e; --sunk: #1b2338; --fg: #e6eaf2; --muted: #98a2b6; --line: #263048;
-    --accent: #7b93ff; --accent-ink: #0d1220; --charging: #7b93ff;
-    --hold: #f2b84b; --hold-bg: #3a2c10; --free: #4cc38a; --free-bg: #12301f;
+    --bg: #100e1d; --surface: #1a1730; --sunk: #221e3b; --fg: #eeebfa; --muted: #a9a4c4; --line: #2e2950;
+    --green: #6fd17f; --green-soft: #173521; --purple: #b195ff; --purple-soft: #2c2252; --on-brand: #100e1d;
+    --hold: #f2b84b; --hold-bg: #3a2c10;
+    --grad: linear-gradient(120deg, #1f6e2b 0%, #1d5a52 45%, #45238a 100%);
     color-scheme: dark;
   }
 
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
-  body {
-    background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 1rem; line-height: 1.6;
-  }
-  .band { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 1.05rem; line-height: 1.6; }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+  .band { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 4rem; }
   .inner { max-width: 72rem; margin: 0 auto; }
+  .tint { background: var(--surface); border-block: 1px solid var(--line); }
 
-  h1, h2, h3 { font-family: var(--display); font-stretch: 112%; margin: 0; text-wrap: balance; letter-spacing: -0.015em; }
-  h1 { font-size: clamp(2.3rem, 5.6vw, 4rem); font-weight: 800; line-height: 1.02; }
-  h2 { font-size: clamp(1.6rem, 3.4vw, 2.3rem); font-weight: 750; line-height: 1.1; }
-  h3 { font-size: 1.1rem; font-weight: 700; font-stretch: 105%; letter-spacing: 0; }
+  h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; letter-spacing: -0.02em; }
+  h1 { font-size: clamp(2.1rem, 5vw, 3.5rem); font-weight: 700; line-height: 1.08; }
+  h2 { font-size: clamp(1.6rem, 3.2vw, 2.25rem); font-weight: 700; line-height: 1.15; }
+  h3 { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em; }
   p { margin: 0; }
-  .eyebrow { font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
-  .lead { font-size: 1.15rem; color: var(--muted); max-width: 36rem; }
-  a { color: var(--accent); }
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .g { color: var(--green); }
+  .p { color: var(--purple); }
+  .eyebrow { font-family: var(--display); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: var(--green); }
+  .lead { font-size: 1.15rem; color: var(--muted); max-width: 38rem; }
+  .sec-head { display: grid; gap: 0.75rem; margin-bottom: 2.5rem; max-width: 44rem; }
+  .sec-head.center { margin-inline: auto; text-align: center; justify-items: center; }
+  a { color: var(--purple); }
+  :focus-visible { outline: 2.5px solid var(--purple); outline-offset: 3px; }
 
-  /* Nav */
-  nav.band { padding-block: 1.1rem; }
-  nav .inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-  .logo { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--display); font-weight: 800; font-stretch: 120%; font-size: 1.3rem; color: var(--fg); text-decoration: none; }
-  .logo svg { width: 26px; height: 26px; }
-  .nav-links { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center; }
-  .nav-links a { color: var(--fg); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
-  .nav-links a:hover { color: var(--accent); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; font-family: var(--display); font-weight: 600; font-size: 0.95rem; padding: 0.75rem 1.3rem; border-radius: 999px; border: 2px solid var(--purple); background: transparent; color: var(--purple); text-decoration: none; cursor: pointer; transition: transform .15s ease, filter .15s ease; }
+  .btn:hover { transform: translateY(-1px); background: var(--purple-soft); }
+  .btn.primary { background: var(--purple); color: var(--on-brand); }
+  .btn.primary:hover { background: var(--purple); filter: brightness(1.1); }
+  .btn.light { border-color: #ffffff; color: #ffffff; }
+  .btn.light:hover { background: rgba(255, 255, 255, .14); }
+  .btn.solid-light { background: #ffffff; border-color: #ffffff; color: #3a1f7a; }
+  .btn.small { padding: 0.45rem 0.9rem; font-size: 0.85rem; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .cta-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 
-  .btn { display: inline-flex; align-items: center; gap: 0.45rem; font-family: var(--body); font-weight: 600; font-size: 0.95rem; padding: 0.7rem 1.15rem; border-radius: 999px; border: 1.5px solid var(--fg); background: transparent; color: var(--fg); text-decoration: none; cursor: pointer; }
-  .btn:hover { background: var(--sunk); }
-  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-  .btn.primary:hover { filter: brightness(1.08); background: var(--accent); }
-  .btn.small { padding: 0.45rem 0.85rem; font-size: 0.85rem; }
+  /* Header */
+  .site-head { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0.6rem; }
+  .site-head .inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .brand { display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+  .badge { width: 46px; height: 46px; border-radius: 50%; background: #ffffff; display: grid; place-items: center; box-shadow: 0 0 0 1px var(--line); flex: none; }
+  .badge img { width: 40px; height: auto; display: block; }
+  .wordmark { font-family: var(--display); font-weight: 800; font-size: 1.45rem; letter-spacing: -0.02em; line-height: 1; }
+  .wordmark small { display: block; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.16em; color: var(--muted); margin-top: 0.25rem; }
+  .nav { display: flex; align-items: center; gap: 0.25rem; }
+  .nav a.link { font-family: var(--display); font-weight: 500; font-size: 0.92rem; color: var(--fg); text-decoration: none; padding: 0.5rem 0.75rem; border-radius: 999px; }
+  .nav a.link:hover { background: var(--sunk); }
+  .nav a.link[aria-current="page"] { background: var(--green-soft); color: var(--green); }
+  .nav .btn { margin-left: 0.5rem; }
+  .menu-btn { display: none; font: inherit; font-family: var(--display); font-weight: 600; background: var(--sunk); color: var(--fg); border: 0; border-radius: 999px; padding: 0.5rem 0.95rem; cursor: pointer; }
 
-  /* Hero */
-  .hero { padding-block: 2.5rem 4.5rem; }
+  /* Home hero */
+  .hero { padding-block: 3.5rem 4.5rem; background:
+      radial-gradient(60rem 30rem at 100% 0%, var(--purple-soft), transparent 60%),
+      radial-gradient(50rem 30rem at 0% 100%, var(--green-soft), transparent 60%), var(--bg); }
   .hero .inner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 30rem); gap: 3rem; align-items: center; }
   .pitch { display: grid; gap: 1.4rem; min-width: 0; }
-  .pitch h1 em { font-style: normal; color: var(--accent); }
-  .cta-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-  .spec { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; }
+  .trust { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .chip { font-size: 0.85rem; font-weight: 600; padding: 0.3rem 0.75rem; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--fg); }
 
-  /* Queue panel */
-  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 1.2rem; display: grid; gap: 1rem; min-width: 0; box-shadow: 0 18px 40px -24px rgba(18, 26, 43, .35); }
-  .panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
-  .panel-head strong { font-family: var(--display); font-stretch: 110%; font-size: 1rem; }
-  .clock { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .example-tag { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); padding: 0.1rem 0.45rem; border-radius: 4px; }
+  /* Queue demo panel */
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 1.2rem; display: grid; gap: 1rem; min-width: 0; box-shadow: 0 24px 48px -28px rgba(45, 25, 110, .45); }
+  .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .panel-head strong { font-family: var(--display); font-weight: 600; }
+  .mono { font-family: var(--mono); font-size: 0.82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .tag { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); padding: 0.1rem 0.45rem; border-radius: 4px; }
   .bays { display: grid; gap: 0.55rem; }
-  .bay { display: grid; grid-template-columns: 4.2rem minmax(0, 1fr) auto; gap: 0.75rem; align-items: center; padding: 0.7rem 0.8rem; border-radius: 12px; background: var(--sunk); }
-  .bay-id { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); line-height: 1.25; }
-  .bay-id b { display: block; color: var(--fg); font-size: 0.9rem; font-weight: 500; }
+  .bay { display: grid; grid-template-columns: 4rem minmax(0, 1fr) auto; gap: 0.75rem; align-items: center; padding: 0.7rem 0.8rem; border-radius: 14px; background: var(--sunk); }
+  .bay-id { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); line-height: 1.25; }
+  .bay-id b { display: block; color: var(--fg); font-size: 0.88rem; font-weight: 500; }
   .bay-main { min-width: 0; display: grid; gap: 0.35rem; }
   .bay-flat { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
-  .bar i { display: block; height: 100%; background: var(--charging); border-radius: 3px; transition: width .4s ease; }
-  .pill { font-family: var(--mono); font-size: 0.72rem; font-weight: 500; padding: 0.2rem 0.55rem; border-radius: 999px; white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .pill.charging { color: var(--charging); border: 1px solid var(--charging); }
-  .pill.hold { color: var(--hold); background: var(--hold-bg); }
-  .pill.free { color: var(--free); background: var(--free-bg); }
+  .bar { height: 7px; border-radius: 4px; background: var(--line); overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--grad); border-radius: 4px; transition: width .4s ease; }
   .bay.is-hold .bar i { background: var(--hold); }
-
-  .queue-head { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
-  .queue { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; counter-reset: q; }
+  .pill { font-family: var(--mono); font-size: 0.72rem; font-weight: 500; padding: 0.22rem 0.6rem; border-radius: 999px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .pill.charging { color: var(--purple); background: var(--purple-soft); }
+  .pill.hold { color: var(--hold); background: var(--hold-bg); }
+  .pill.free { color: var(--green); background: var(--green-soft); }
+  .queue { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.2rem; counter-reset: q; }
   .queue li { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto; gap: 0.6rem; align-items: center; padding: 0.5rem 0.2rem; border-bottom: 1px dashed var(--line); font-size: 0.92rem; }
   .queue li:last-child { border-bottom: 0; }
   .queue li::before { counter-increment: q; content: counter(q); font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
-  .queue li.me { color: var(--accent); font-weight: 600; }
-  .eta { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .queue li.me { color: var(--purple); font-weight: 700; }
   .queue .empty { grid-template-columns: 1fr; color: var(--muted); }
   .queue .empty::before { content: none; }
   .controls { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-  .toast { font-size: 0.85rem; color: var(--fg); background: var(--sunk); border-radius: 10px; padding: 0.55rem 0.75rem; min-height: 2.4rem; }
+  .toast { font-size: 0.88rem; background: var(--green-soft); color: var(--fg); border-radius: 12px; padding: 0.6rem 0.8rem; min-height: 2.5rem; }
 
-  /* Sections */
-  section.band { padding-block: 4.5rem; }
-  section.alt { background: var(--surface); border-block: 1px solid var(--line); }
-  .sec-head { display: grid; gap: 0.75rem; margin-bottom: 2.5rem; max-width: 42rem; }
+  /* Cards and grids */
+  .three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+  .card { display: grid; gap: 0.6rem; align-content: start; padding: 1.5rem; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); min-width: 0; }
+  .tint .card { background: var(--bg); }
+  .card p { color: var(--muted); }
+  .icon { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; background: var(--green-soft); color: var(--green); }
+  .icon.p { background: var(--purple-soft); color: var(--purple); }
+  .icon svg { width: 26px; height: 26px; }
+  .unit { font-family: var(--mono); font-size: 0.78rem; color: var(--fg); background: var(--sunk); border-radius: 6px; padding: 0.2rem 0.5rem; justify-self: start; }
 
-  .problems { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem; }
-  .problems div { display: grid; gap: 0.5rem; align-content: start; }
-  .problems .q { font-family: var(--display); font-stretch: 108%; font-weight: 700; font-size: 1.15rem; line-height: 1.3; }
-  .problems p { color: var(--muted); }
+  .compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+  .compare .card h3 { display: flex; align-items: center; gap: 0.5rem; }
+  .compare ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; }
+  .compare li { display: grid; grid-template-columns: 1.5rem minmax(0, 1fr); gap: 0.5rem; }
+  .compare li::before { font-weight: 700; }
+  .before li::before { content: "✕"; color: var(--hold); }
+  .after { border-color: var(--green); box-shadow: 0 0 0 1px var(--green) inset; }
+  .after li::before { content: "✓"; color: var(--green); }
 
-  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem; counter-reset: s; }
-  .steps li { display: grid; gap: 0.5rem; align-content: start; padding-top: 1rem; border-top: 3px solid var(--accent); counter-increment: s; }
-  .steps li::before { content: "Step " counter(s); font-family: var(--mono); font-size: 0.75rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
-  .steps p { color: var(--muted); }
+  .cta-band { background: var(--grad); color: #ffffff; }
+  .cta-band .inner { display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+  .cta-band p { color: rgba(255, 255, 255, .85); max-width: 36rem; margin-top: 0.5rem; }
 
-  .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
-  .feature { display: grid; gap: 0.5rem; align-content: start; padding: 1.3rem; border-radius: 14px; background: var(--bg); border: 1px solid var(--line); }
-  .feature svg { width: 28px; height: 28px; color: var(--accent); }
-  .feature p { color: var(--muted); font-size: 0.95rem; }
-  .feature .unit { font-family: var(--mono); font-size: 0.78rem; color: var(--fg); }
+  /* How it works */
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; counter-reset: s; }
+  .steps li { counter-increment: s; }
+  .steps .card::before { content: counter(s); width: 2.4rem; height: 2.4rem; border-radius: 50%; display: grid; place-items: center; font-family: var(--display); font-weight: 700; background: var(--grad); color: #ffffff; }
+  .how-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 30rem); gap: 3rem; align-items: start; }
+  .legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem; }
+  .legend li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.8rem; align-items: start; }
+  .legend .pill { margin-top: 0.15rem; }
 
+  /* Societies */
   .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 3rem; align-items: start; }
-  .checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem; }
-  .checklist li { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); gap: 0.6rem; }
-  .checklist li::before { content: ""; width: 0.8rem; height: 0.8rem; margin-top: 0.4rem; border-radius: 3px; background: var(--accent); }
+  .checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+  .checklist li { display: grid; grid-template-columns: 1.8rem minmax(0, 1fr); gap: 0.6rem; }
+  .checklist li::before { content: "✓"; width: 1.6rem; height: 1.6rem; border-radius: 50%; display: grid; place-items: center; font-size: 0.85rem; font-weight: 700; background: var(--green-soft); color: var(--green); }
   .checklist b { display: block; }
   .checklist span { color: var(--muted); }
-
-  .statement { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; min-width: 0; }
-  .statement-head { display: flex; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; padding: 1rem 1.2rem; border-bottom: 1px solid var(--line); align-items: baseline; }
-  .statement-head strong { font-family: var(--display); font-stretch: 108%; }
+  .sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; min-width: 0; }
+  .sheet-head { display: flex; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; padding: 1rem 1.2rem; border-bottom: 1px solid var(--line); align-items: center; }
+  .sheet-head strong { font-family: var(--display); font-weight: 600; }
   .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; font-variant-numeric: tabular-nums; }
   th, td { padding: 0.65rem 1.2rem; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
   th { font-family: var(--mono); font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-  td.num, th.num { text-align: right; }
-  tfoot td { font-weight: 600; border-bottom: 0; }
-  .statement-foot { padding: 0.8rem 1.2rem; font-size: 0.82rem; color: var(--muted); border-top: 1px solid var(--line); }
-
-  .rules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
-  .rule { display: flex; gap: 0.9rem; align-items: center; padding: 0.9rem 1.1rem; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); }
-  .rule code { font-family: var(--mono); font-size: 0.82rem; padding: 0.2rem 0.5rem; border-radius: 6px; background: var(--sunk); color: var(--fg); white-space: nowrap; }
+  .num { text-align: right; }
+  tfoot td { font-weight: 700; border-bottom: 0; }
+  .sheet-foot { padding: 0.8rem 1.2rem; font-size: 0.85rem; color: var(--muted); border-top: 1px solid var(--line); }
+  .rules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.85rem; }
+  .rule { display: flex; gap: 1rem; align-items: center; padding: 1rem 1.2rem; border-radius: 16px; border: 1px solid var(--line); background: var(--bg); }
+  .rule code { font-family: var(--mono); font-size: 0.82rem; padding: 0.25rem 0.55rem; border-radius: 8px; background: var(--purple-soft); color: var(--purple); white-space: nowrap; }
   .rule span { min-width: 0; }
 
-  .closing .inner { display: grid; gap: 1.2rem; justify-items: start; }
-  .closing h2 { max-width: 40rem; }
+  /* FAQ */
+  .faq { display: grid; gap: 0.75rem; max-width: 50rem; }
+  .faq details { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 0 1.25rem; }
+  .faq summary { cursor: pointer; list-style: none; font-family: var(--display); font-weight: 600; padding-block: 1.1rem; display: flex; justify-content: space-between; gap: 1rem; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; color: var(--green); font-size: 1.3rem; line-height: 1; }
+  .faq details[open] summary::after { content: "−"; }
+  .faq details p { color: var(--muted); padding-bottom: 1.1rem; }
 
-  footer.band { padding-block: 2rem; border-top: 1px solid var(--line); }
-  footer .inner { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); }
+  /* Waitlist */
+  .wl { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 3rem; align-items: start; }
+  .wl-copy { display: grid; gap: 1.2rem; min-width: 0; justify-items: start; }
+  .logo-full { width: min(260px, 70%); height: auto; background: #ffffff; border-radius: 24px; padding: 1rem; border: 1px solid var(--line); }
+  .form { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 1.5rem; display: grid; gap: 1rem; min-width: 0; }
+  .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .field { display: grid; gap: 0.35rem; min-width: 0; }
+  .field label { font-size: 0.88rem; font-weight: 600; }
+  .field label small { font-weight: 400; color: var(--muted); }
+  .field input, .field select { font: inherit; font-size: 0.95rem; padding: 0.7rem 0.8rem; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); width: 100%; min-width: 0; }
+  .field input:focus, .field select:focus { outline: 2px solid var(--purple); outline-offset: 1px; border-color: var(--purple); }
+  .form-foot { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .status { font-size: 0.9rem; color: var(--muted); min-width: 0; }
+  .status.ok { color: var(--green); font-weight: 600; }
+  .status.err { color: var(--hold); }
+  .owner { margin-top: 3rem; display: grid; gap: 1rem; }
+  .owner-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
+  .owner td.empty { color: var(--muted); white-space: normal; }
 
-  @media (max-width: 900px) {
-    .hero .inner, .split { grid-template-columns: minmax(0, 1fr); }
+  /* Footer */
+  footer { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 2.5rem; border-top: 1px solid var(--line); background: var(--surface); }
+  footer .inner { display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; align-items: center; }
+  .foot-links { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .foot-links a { color: var(--muted); text-decoration: none; font-size: 0.92rem; }
+  .foot-links a:hover { color: var(--purple); }
+  .copy { font-size: 0.85rem; color: var(--muted); }
+
+  .page { animation: fade .25s ease; }
+  @keyframes fade { from { opacity: 0.4; } to { opacity: 1; } }
+
+  @media (max-width: 960px) {
+    .menu-btn { display: inline-flex; }
+    .nav { display: none; position: absolute; left: 0; right: 0; top: 100%; flex-direction: column; align-items: stretch; gap: 0.25rem; background: var(--surface); border-bottom: 1px solid var(--line); padding: 0.75rem max(16px, env(safe-area-inset-right, 0px)) 1rem max(16px, env(safe-area-inset-left, 0px)); }
+    .nav.open { display: flex; }
+    .nav .btn { margin: 0.5rem 0 0; }
+    .hero .inner, .split, .wl, .how-split { grid-template-columns: minmax(0, 1fr); }
     .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 620px) {
-    .problems, .steps, .features, .rules { grid-template-columns: minmax(0, 1fr); }
-    .nav-links a:not(.btn) { display: none; }
-    section.band { padding-block: 3.2rem; }
-    .bay { grid-template-columns: 3.6rem minmax(0, 1fr) auto; gap: 0.55rem; }
+    .band { padding-block: 3rem; }
+    .three, .steps, .compare, .rules, .row { grid-template-columns: minmax(0, 1fr); }
+    .bay { grid-template-columns: 3.4rem minmax(0, 1fr) auto; gap: 0.55rem; }
+    .wordmark small { display: none; }
   }
 </style>
 </head>
 <body>
 
-<nav class="band">
+<header class="site-head">
   <div class="inner">
-    <a class="logo" href="#top" aria-label="EVNest home">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 15 16 5l12 10v12H4z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M17.5 11 12.5 19h4l-1.5 6 5-8h-4z" fill="var(--accent)"/></svg>
-      EVNest
+    <a class="brand" href="#home" aria-label="EVNest home">
+      <span class="badge"><img src="emblem.webp" alt="" width="40" height="37"></span>
+      <span class="wordmark"><span class="g">EV</span><span class="p">Nest</span><small>POWERING EV COMMUNITIES</small></span>
     </a>
-    <div class="nav-links">
-      <a href="#how">How it works</a>
-      <a href="#features">Features</a>
-      <a href="#committees">For committees</a>
-      <a class="btn small primary" href="#demo">Try the queue</a>
-    </div>
-  </div>
-</nav>
-
-<header class="band hero" id="top">
-  <div class="inner">
-    <div class="pitch">
-      <span class="eyebrow">EV charging for housing societies</span>
-      <h1>Three chargers. Forty EVs. <em>No more WhatsApp fights.</em></h1>
-      <p class="lead">EVNest gives your society a fair, automatic queue for its shared chargers. Residents join from their phone, get a ping when it's their turn, and pay for exactly the units they used on the monthly maintenance bill.</p>
-      <div class="cta-row">
-        <a class="btn primary" href="#demo">Try the live queue</a>
-        <a class="btn" href="#committees">For RWA committees</a>
-      </div>
-      <div class="spec"><span>Works with 3.3 kW &amp; 7.4 kW AC chargers</span><span>Billing in ₹/kWh</span><span>Android · iOS · Web</span></div>
-    </div>
-
-    <div class="panel" id="demo" aria-live="polite">
-      <div class="panel-head">
-        <strong>Basement B1 · Charging bay</strong>
-        <span class="example-tag">Example society</span>
-      </div>
-      <div class="panel-head">
-        <span class="clock" id="clock">Today 19:40</span>
-        <span class="clock">3 × 7.4 kW AC</span>
-      </div>
-      <div class="bays" id="bays"></div>
-      <div class="queue-head">
-        <span class="eyebrow">Waiting list</span>
-        <span class="clock" id="qcount"></span>
-      </div>
-      <ol class="queue" id="queue"></ol>
-      <div class="controls">
-        <button class="btn small primary" id="join" type="button">Join queue as A-1204</button>
-        <button class="btn small" id="advance" type="button">Skip ahead 15 min</button>
-        <button class="btn small" id="reset" type="button">Reset</button>
-      </div>
-      <div class="toast" id="toast">Tap "Join queue" to see how residents line up for the next free charger.</div>
-    </div>
+    <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a class="link" href="#home">Home</a>
+      <a class="link" href="#how">How it works</a>
+      <a class="link" href="#features">Features</a>
+      <a class="link" href="#societies">For societies</a>
+      <a class="link" href="#faq">FAQ</a>
+      <a class="btn primary small" href="#waitlist">Join the waitlist</a>
+    </nav>
   </div>
 </header>
 
-<section class="band alt">
-  <div class="inner">
-    <div class="sec-head">
-      <span class="eyebrow">The shared-charger problem</span>
-      <h2>Every society with EVs hits the same three questions.</h2>
-    </div>
-    <div class="problems">
-      <div><p class="q">"Is any charger free right now?"</p><p>Residents walk down to the basement to check, or post in the group and wait for replies.</p></div>
-      <div><p class="q">"Whose car is still plugged in at 100%?"</p><p>Fully charged cars block the bay for hours while the next person waits upstairs.</p></div>
-      <div><p class="q">"Who used how many units?"</p><p>The facility team copies meter readings into a spreadsheet and splits the bill by hand.</p></div>
-    </div>
+<main>
+  <!-- HOME -->
+  <div class="page" data-page="home">
+    <section class="band hero">
+      <div class="inner">
+        <div class="pitch">
+          <span class="eyebrow">For housing societies with shared EV chargers</span>
+          <h1>Few chargers, many EVs. <span class="p">EVNest makes sure everyone gets a turn.</span></h1>
+          <p class="lead">Residents join a simple queue from their phone. When a charger is free, the next person gets a message. Everyone pays only for the units they use.</p>
+          <div class="cta-row">
+            <a class="btn primary" href="#waitlist">Join the waitlist</a>
+            <a class="btn" href="#how">See how it works</a>
+          </div>
+          <div class="trust"><span class="chip">No more waiting downstairs</span><span class="chip">No WhatsApp arguments</span><span class="chip">Fair billing per flat</span></div>
+        </div>
+        <div data-demo-slot></div>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="inner">
+        <div class="sec-head center">
+          <span class="eyebrow">EVNest in three ideas</span>
+          <h2>Simple for residents. Easy for the committee.</h2>
+        </div>
+        <div class="three">
+          <div class="card">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h11M4 18h7"/></svg></span>
+            <h3>Join the line from your phone</h3>
+            <p>No need to go down and check. Tap once and see your place in line and your expected start time.</p>
+          </div>
+          <div class="card">
+            <span class="icon p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></span>
+            <h3>Get a ping when it's your turn</h3>
+            <p>The charger is held for you for 10 minutes. Plug in, and charging starts.</p>
+          </div>
+          <div class="card">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>
+            <h3>Pay only for what you use</h3>
+            <p>Every session is measured in units (kWh). Your total is added to the monthly maintenance bill.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band tint">
+      <div class="inner">
+        <div class="sec-head center">
+          <span class="eyebrow">What changes</span>
+          <h2>Life with shared chargers, before and after.</h2>
+        </div>
+        <div class="compare">
+          <div class="card before">
+            <h3>Without EVNest</h3>
+            <ul>
+              <li>Walk to the basement to see if a charger is free</li>
+              <li>Cars stay plugged in long after they're full</li>
+              <li>Arguments in the society WhatsApp group</li>
+              <li>Facility team splits the electricity bill by hand</li>
+            </ul>
+          </div>
+          <div class="card after">
+            <h3>With EVNest</h3>
+            <ul>
+              <li>See free chargers and your wait time on your phone</li>
+              <li>Owners get a reminder the moment charging finishes</li>
+              <li>A fair first-come, first-served queue for everyone</li>
+              <li>Automatic bill for each flat, ready every month</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band cta-band">
+      <div class="inner">
+        <div>
+          <h2>Want EVNest in your society?</h2>
+          <p>We're starting with a small group of societies. Add yours to the waitlist and we'll get in touch.</p>
+        </div>
+        <div class="cta-row">
+          <a class="btn solid-light" href="#waitlist">Join the waitlist</a>
+          <a class="btn light" href="#societies">Info for committees</a>
+        </div>
+      </div>
+    </section>
   </div>
-</section>
 
-<section class="band" id="how">
-  <div class="inner">
-    <div class="sec-head">
-      <span class="eyebrow">How it works</span>
-      <h2>From "anyone free?" to plugged in, without a single message.</h2>
-    </div>
-    <ol class="steps">
-      <li><h3>Join the queue</h3><p>Open the app, pick how long you need, and tap Join. You see your place in line and an estimated start time.</p></li>
-      <li><h3>Get your turn</h3><p>When a bay frees up, EVNest notifies the next flat and holds the charger for 10 minutes.</p></li>
-      <li><h3>Plug in and charge</h3><p>Scan the bay's QR code to start. Track progress, units drawn and cost live on your phone.</p></li>
-      <li><h3>Unplug and release</h3><p>Get a reminder when your session ends. The bay goes straight to the next person in line.</p></li>
-    </ol>
+  <!-- HOW IT WORKS -->
+  <div class="page" data-page="how" hidden>
+    <section class="band">
+      <div class="inner">
+        <div class="sec-head">
+          <span class="eyebrow">How it works</span>
+          <h1>Four steps from "is a charger free?" to charging.</h1>
+          <p class="lead">This is what a resident does. No calls, no messages, no waiting in the basement.</p>
+        </div>
+        <ol class="steps">
+          <li><div class="card"><h3>Join the queue</h3><p>Open EVNest, choose how long you need, and tap Join. You see your place in line and when you'll likely start.</p></div></li>
+          <li><div class="card"><h3>Get your turn</h3><p>When a charger frees up, you get a notification. The charger is held for you for 10 minutes.</p></div></li>
+          <li><div class="card"><h3>Plug in and charge</h3><p>Scan the QR code on the charger to start. Watch progress, units and cost live on your phone.</p></div></li>
+          <li><div class="card"><h3>Unplug and go</h3><p>You get a reminder when charging is done. The charger goes to the next person automatically.</p></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="band tint">
+      <div class="inner how-split">
+        <div class="sec-head" style="margin-bottom:0">
+          <span class="eyebrow">Try it yourself</span>
+          <h2>Play with a live queue.</h2>
+          <p class="lead">This is an example society with three chargers. Join the queue as flat A-1204, then skip ahead in time to see what happens.</p>
+          <ul class="legend">
+            <li><span class="pill free">Free</span><span>Nobody is using this charger. The next person in line gets it.</span></li>
+            <li><span class="pill hold">Held · 10 min</span><span>Kept for the next person while they come down and plug in.</span></li>
+            <li><span class="pill charging">1 h left</span><span>A car is charging. The time shows when it will be free.</span></li>
+          </ul>
+        </div>
+        <div data-demo-slot></div>
+      </div>
+    </section>
   </div>
-</section>
 
-<section class="band alt" id="features">
-  <div class="inner">
-    <div class="sec-head">
-      <span class="eyebrow">Features</span>
-      <h2>Built for a few chargers shared by many flats.</h2>
-    </div>
-    <div class="features">
-      <div class="feature">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h11M4 18h7"/></svg>
-        <h3>Fair queue</h3>
-        <p>First come, first served across all bays, with estimated start times that update as sessions end early or run long.</p>
+  <!-- FEATURES -->
+  <div class="page" data-page="features" hidden>
+    <section class="band">
+      <div class="inner">
+        <div class="sec-head">
+          <span class="eyebrow">Features</span>
+          <h1>Everything a society needs to share a few chargers.</h1>
+          <p class="lead">EVNest is built for the common case: two to ten chargers in the parking, and many more cars than that.</p>
+        </div>
+        <div class="three">
+          <div class="card">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h11M4 18h7"/></svg></span>
+            <h3>Fair queue</h3>
+            <p>First come, first served across all chargers. Start times update when someone finishes early or runs late.</p>
+          </div>
+          <div class="card">
+            <span class="icon p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></span>
+            <h3>Plug-in hold</h3>
+            <p>The next person gets a short window to plug in. If they don't come, the charger passes to the next flat.</p>
+            <span class="unit">Default: 10 min</span>
+          </div>
+          <div class="card">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></span>
+            <h3>"Car is full" alerts</h3>
+            <p>Owners get a nudge when charging ends. Societies can add a small idle fee for cars left plugged in.</p>
+            <span class="unit">e.g. ₹2/min after 15 min</span>
+          </div>
+          <div class="card">
+            <span class="icon p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>
+            <h3>Bill for each flat</h3>
+            <p>Every session is measured in kWh and priced at your society's rate. Totals go straight to the maintenance bill.</p>
+          </div>
+          <div class="card">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
+            <h3>Safe power use</h3>
+            <p>Keeps the total power drawn within your building's sanctioned load, so the main supply never trips.</p>
+            <span class="unit">e.g. 3 × 7.4 kW = 22.2 kW</span>
+          </div>
+          <div class="card">
+            <span class="icon p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>
+            <h3>Overnight booking</h3>
+            <p>Book a charger for the night ahead of time. Use cheaper night rates where your electricity board offers them.</p>
+          </div>
+        </div>
       </div>
-      <div class="feature">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
-        <h3>Plug-in hold</h3>
-        <p>The next flat gets a short window to plug in. Miss it and the bay passes on, so nobody waits on a no-show.</p>
-        <span class="unit">Default hold: 10 min</span>
+    </section>
+    <section class="band tint">
+      <div class="inner">
+        <div class="sec-head center">
+          <span class="eyebrow">Works with</span>
+          <h2>The chargers societies already have.</h2>
+        </div>
+        <div class="three">
+          <div class="card"><h3>AC chargers</h3><p>Common 3.3 kW and 7.4 kW wall boxes used in Indian housing societies.</p></div>
+          <div class="card"><h3>Any phone</h3><p>Android, iPhone, or a web browser. Residents don't need a new device.</p></div>
+          <div class="card"><h3>Guard desk screen</h3><p>A simple display at the security desk shows who is on each charger.</p></div>
+        </div>
       </div>
-      <div class="feature">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>
-        <h3>Idle alerts</h3>
-        <p>Owners get a nudge when the battery is full. An optional idle fee kicks in if the car keeps sitting on the charger.</p>
-        <span class="unit">e.g. ₹2 per idle minute after 15 min</span>
-      </div>
-      <div class="feature">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
-        <h3>Per-flat billing</h3>
-        <p>Every session is metered in kWh and priced at the society's rate. Totals export straight into the maintenance bill.</p>
-      </div>
-      <div class="feature">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
-        <h3>Load management</h3>
-        <p>Keeps total draw within the society's sanctioned load, so chargers never trip the building's main supply.</p>
-        <span class="unit">e.g. 3 bays × 7.4 kW = 22.2 kW cap</span>
-      </div>
-      <div class="feature">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
-        <h3>Overnight slots</h3>
-        <p>Book a bay for the off-peak window ahead of time, with cheaper night tariffs where your DISCOM offers time-of-day rates.</p>
-      </div>
-    </div>
+    </section>
   </div>
-</section>
 
-<section class="band" id="committees">
-  <div class="inner split">
-    <div style="display:grid;gap:1.5rem;min-width:0">
-      <div class="sec-head" style="margin-bottom:0">
-        <span class="eyebrow">For RWA &amp; management committees</span>
-        <h2>Run the chargers without running a spreadsheet.</h2>
-        <p class="lead">One dashboard for the committee and facility manager. Set the rules once and EVNest enforces them for every resident.</p>
+  <!-- SOCIETIES -->
+  <div class="page" data-page="societies" hidden>
+    <section class="band">
+      <div class="inner split">
+        <div style="display:grid;gap:1.5rem;min-width:0">
+          <div class="sec-head" style="margin-bottom:0">
+            <span class="eyebrow">For RWA &amp; management committees</span>
+            <h1>Run the chargers without running a spreadsheet.</h1>
+            <p class="lead">One dashboard for the committee and facility manager. Set the rules once, and EVNest applies them for every resident.</p>
+          </div>
+          <ul class="checklist">
+            <li><div><b>Monthly bill per flat</b><span>Sessions, units and amount, ready to add to maintenance.</span></div></li>
+            <li><div><b>Charger usage and health</b><span>See which chargers are busiest and spot faults early.</span></div></li>
+            <li><div><b>Only verified residents</b><span>Approve flats with a registered EV before they can join.</span></div></li>
+            <li><div><b>Guard and facility view</b><span>The security desk sees who is on each charger.</span></div></li>
+          </ul>
+        </div>
+        <div class="sheet">
+          <div class="sheet-head"><strong>EV charging bill · September</strong><span class="tag">Example data</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Flat</th><th class="num">Sessions</th><th class="num">Units (kWh)</th><th class="num">Amount</th></tr></thead>
+              <tbody>
+                <tr><td>A-0402</td><td class="num">14</td><td class="num">186.4</td><td class="num">₹2,050</td></tr>
+                <tr><td>A-1204</td><td class="num">9</td><td class="num">121.0</td><td class="num">₹1,331</td></tr>
+                <tr><td>B-1101</td><td class="num">17</td><td class="num">232.8</td><td class="num">₹2,561</td></tr>
+                <tr><td>C-0803</td><td class="num">6</td><td class="num">74.5</td><td class="num">₹820</td></tr>
+                <tr><td>D-0207</td><td class="num">11</td><td class="num">142.2</td><td class="num">₹1,564</td></tr>
+              </tbody>
+              <tfoot><tr><td>Total</td><td class="num">57</td><td class="num">756.9</td><td class="num">₹8,326</td></tr></tfoot>
+            </table>
+          </div>
+          <div class="sheet-foot">Rate set by the committee: ₹11.00 per kWh, rounded to the nearest rupee.</div>
+        </div>
       </div>
-      <ul class="checklist">
-        <li><div><b>Monthly statements per flat</b><span>Sessions, units and amount, ready to add to maintenance.</span></div></li>
-        <li><div><b>Charger health and usage</b><span>See uptime, faults and which bays are busiest by hour.</span></div></li>
-        <li><div><b>Resident approvals</b><span>Only verified flats with a registered EV can join the queue.</span></div></li>
-        <li><div><b>Guard and facility view</b><span>A simple screen at the basement desk shows who's on each bay.</span></div></li>
-      </ul>
-    </div>
+    </section>
 
-    <div class="statement">
-      <div class="statement-head">
-        <strong>EV charging statement · September</strong>
-        <span class="example-tag">Example data</span>
+    <section class="band tint">
+      <div class="inner">
+        <div class="sec-head">
+          <span class="eyebrow">Your rules</span>
+          <h2>The committee decides. The app keeps everyone to it.</h2>
+        </div>
+        <div class="rules">
+          <div class="rule"><code>max 3 h</code><span>Longest session allowed at peak time, 6 pm to 11 pm.</span></div>
+          <div class="rule"><code>hold 10 min</code><span>Time to plug in after your turn comes up.</span></div>
+          <div class="rule"><code>1 per flat</code><span>One place in the queue per flat at a time.</span></div>
+          <div class="rule"><code>&lt; 20% first</code><span>Optional priority for cars with very low battery.</span></div>
+        </div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Flat</th><th class="num">Sessions</th><th class="num">Units (kWh)</th><th class="num">Amount</th></tr></thead>
-          <tbody>
-            <tr><td>A-0402</td><td class="num">14</td><td class="num">186.4</td><td class="num">₹2,050</td></tr>
-            <tr><td>A-1204</td><td class="num">9</td><td class="num">121.0</td><td class="num">₹1,331</td></tr>
-            <tr><td>B-1101</td><td class="num">17</td><td class="num">232.8</td><td class="num">₹2,561</td></tr>
-            <tr><td>C-0803</td><td class="num">6</td><td class="num">74.5</td><td class="num">₹820</td></tr>
-            <tr><td>D-0207</td><td class="num">11</td><td class="num">142.2</td><td class="num">₹1,564</td></tr>
-          </tbody>
-          <tfoot><tr><td>Total</td><td class="num">57</td><td class="num">756.9</td><td class="num">₹8,326</td></tr></tfoot>
-        </table>
+    </section>
+
+    <section class="band">
+      <div class="inner">
+        <div class="sec-head">
+          <span class="eyebrow">Getting started</span>
+          <h2>Set up in one afternoon.</h2>
+        </div>
+        <ol class="steps" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr))">
+          <li><div class="card"><h3>Add your chargers</h3><p>Register each charger and stick its QR code on it.</p></div></li>
+          <li><div class="card"><h3>Invite residents</h3><p>Share a join link. Approve each flat with an EV.</p></div></li>
+          <li><div class="card"><h3>Set rate and rules</h3><p>Choose your ₹/kWh rate, hold time and session limits.</p></div></li>
+        </ol>
       </div>
-      <div class="statement-foot">Rate set by the committee: ₹11.00 per kWh, rounded to the nearest rupee.</div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<section class="band alt">
-  <div class="inner">
-    <div class="sec-head">
-      <span class="eyebrow">House rules, your way</span>
-      <h2>The committee sets the rules. The app keeps everyone to them.</h2>
-    </div>
-    <div class="rules">
-      <div class="rule"><code>max 3 h</code><span>Longest session allowed during peak hours, 6 pm to 11 pm.</span></div>
-      <div class="rule"><code>hold 10 min</code><span>Time to plug in after your turn comes up.</span></div>
-      <div class="rule"><code>1 active</code><span>One queue spot per flat at a time, however many cars it has.</span></div>
-      <div class="rule"><code>&lt; 20% first</code><span>Optional priority for cars below 20% battery.</span></div>
-    </div>
+    <section class="band cta-band">
+      <div class="inner">
+        <div>
+          <h2>Bring EVNest to your committee meeting.</h2>
+          <p>Join the waitlist and we'll help you set up your society's chargers.</p>
+        </div>
+        <a class="btn solid-light" href="#waitlist">Join the waitlist</a>
+      </div>
+    </section>
   </div>
-</section>
 
-<section class="band closing">
-  <div class="inner">
-    <span class="eyebrow">Get started</span>
-    <h2>Bring EVNest to your society's charging bay.</h2>
-    <p class="lead">Setup takes an afternoon: register the chargers, invite residents by flat number, and set your rate. Try the queue above to see what residents get.</p>
-    <a class="btn primary" href="#demo">Try the live queue</a>
+  <!-- FAQ -->
+  <div class="page" data-page="faq" hidden>
+    <section class="band">
+      <div class="inner">
+        <div class="sec-head">
+          <span class="eyebrow">FAQ</span>
+          <h1>Common questions</h1>
+        </div>
+        <div class="faq">
+          <details open><summary>What is EVNest?</summary><p>EVNest is an app for housing societies that share a few EV chargers among many residents. It runs a fair queue, tells you when it's your turn, and bills each flat for the electricity it used.</p></details>
+          <details><summary>Do we need to buy new chargers?</summary><p>No. EVNest is designed to work with the AC chargers societies commonly install, such as 3.3 kW and 7.4 kW wall boxes.</p></details>
+          <details><summary>What if someone doesn't come when it's their turn?</summary><p>The charger is held for 10 minutes (your committee can change this). If they don't plug in, it automatically goes to the next person in line.</p></details>
+          <details><summary>What if a car stays plugged in after it's full?</summary><p>The owner gets a reminder when charging ends. Societies can also turn on a small idle fee for cars that stay plugged in too long.</p></details>
+          <details><summary>How is the electricity bill split?</summary><p>Each charging session is measured in units (kWh) and multiplied by the rate your committee sets. At the end of the month, each flat's total is ready to add to its maintenance bill.</p></details>
+          <details><summary>Who can use the chargers?</summary><p>Only residents the committee has approved. Each flat registers its EV before it can join the queue.</p></details>
+          <details><summary>When can our society start?</summary><p>We're onboarding a small group of societies first. <a href="#waitlist">Join the waitlist</a> and we'll contact you.</p></details>
+        </div>
+      </div>
+    </section>
   </div>
-</section>
 
-<footer class="band">
+  <!-- WAITLIST -->
+  <div class="page" data-page="waitlist" hidden>
+    <section class="band">
+      <div class="inner">
+        <div class="wl">
+          <div class="wl-copy">
+            <img class="logo-full" src="logo-full.webp" alt="EVNest logo: Powering EV communities" width="649" height="720">
+            <span class="eyebrow">Early access</span>
+            <h1>Join the EVNest waitlist.</h1>
+            <p class="lead">Tell us about your society. We'll get in touch to set up your chargers, residents and rate.</p>
+          </div>
+          <form class="form" id="wl-form" novalidate>
+            <div class="row">
+              <div class="field"><label for="wl-name">Your name</label><input id="wl-name" name="name" autocomplete="name" required maxlength="80" placeholder="Priya Sharma"></div>
+              <div class="field"><label for="wl-role">You are a</label>
+                <select id="wl-role" name="role">
+                  <option>Resident with an EV</option>
+                  <option>Committee / RWA member</option>
+                  <option>Facility manager</option>
+                  <option>Builder or developer</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field"><label for="wl-society">Society name</label><input id="wl-society" name="society" required maxlength="120" placeholder="Green Meadows CHS"></div>
+              <div class="field"><label for="wl-city">City</label><input id="wl-city" name="city" required maxlength="60" autocomplete="address-level2" placeholder="Pune"></div>
+            </div>
+            <div class="row">
+              <div class="field"><label for="wl-chargers">Chargers today <small>(0 if none yet)</small></label><input id="wl-chargers" name="chargers" type="number" min="0" max="200" inputmode="numeric" placeholder="3"></div>
+              <div class="field"><label for="wl-evs">EVs in the society <small>(rough count)</small></label><input id="wl-evs" name="evs" type="number" min="0" max="5000" inputmode="numeric" placeholder="40"></div>
+            </div>
+            <div class="field"><label for="wl-contact">Phone or email</label><input id="wl-contact" name="contact" required maxlength="120" autocomplete="email" placeholder="priya@example.com or 98xxxxxx10"></div>
+            <div class="form-foot">
+              <button class="btn primary" id="wl-submit" type="submit">Join the waitlist</button>
+              <span class="status" id="wl-status" role="status"></span>
+            </div>
+          </form>
+        </div>
+
+        <div class="owner" id="owner" hidden>
+          <div class="owner-head">
+            <h2>Waitlist signups</h2>
+            <span class="mono" id="owner-count">Only you can see this list</span>
+          </div>
+          <div class="sheet">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Date</th><th>Name</th><th>Role</th><th>Society</th><th>City</th><th class="num">Chargers</th><th class="num">EVs</th><th>Contact</th></tr></thead>
+                <tbody id="owner-rows"><tr><td class="empty" colspan="8">No signups yet. They'll show up here as people join.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
   <div class="inner">
-    <span>© 2026 EVNest</span>
-    <span>Shared EV charging for housing societies</span>
+    <a class="brand" href="#home" aria-label="EVNest home">
+      <span class="badge"><img src="emblem.webp" alt="" width="40" height="37"></span>
+      <span class="wordmark"><span class="g">EV</span><span class="p">Nest</span><small>POWERING EV COMMUNITIES</small></span>
+    </a>
+    <div class="foot-links">
+      <a href="#how">How it works</a><a href="#features">Features</a><a href="#societies">For societies</a><a href="#faq">FAQ</a><a href="#waitlist">Waitlist</a>
+    </div>
+    <span class="copy">© 2026 EVNest</span>
   </div>
 </footer>
 
+<!-- Queue demo, moved into whichever page's slot is showing -->
+<div class="panel" id="demo" aria-live="polite">
+  <div class="panel-head"><strong>Basement B1 · Chargers</strong><span class="tag">Example society</span></div>
+  <div class="panel-head"><span class="mono" id="clock">Today 19:40</span><span class="mono">3 × 7.4 kW AC</span></div>
+  <div class="bays" id="bays"></div>
+  <div class="panel-head"><span class="eyebrow">Waiting list</span><span class="mono" id="qcount"></span></div>
+  <ol class="queue" id="queue"></ol>
+  <div class="controls">
+    <button class="btn small primary" id="join" type="button">Join queue as A-1204</button>
+    <button class="btn small" id="advance" type="button">Skip ahead 15 min</button>
+    <button class="btn small" id="reset" type="button">Reset</button>
+  </div>
+  <div class="toast" id="toast">Tap "Join queue" to see how residents line up for the next free charger.</div>
+</div>
+
 <script>
+// Pages
+(function () {
+  const pages = [...document.querySelectorAll('[data-page]')];
+  const names = pages.map(p => p.dataset.page);
+  const links = [...document.querySelectorAll('.nav a.link')];
+  const nav = document.getElementById('nav'), menuBtn = document.getElementById('menu-btn');
+  const demo = document.getElementById('demo');
+
+  function show() {
+    let name = location.hash.slice(1);
+    if (!names.includes(name)) name = 'home';
+    pages.forEach(p => { p.hidden = p.dataset.page !== name; });
+    links.forEach(a => a.getAttribute('href') === '#' + name ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
+    const slot = document.querySelector('[data-page="' + name + '"] [data-demo-slot]');
+    if (slot) slot.appendChild(demo);
+    demo.hidden = !slot;
+    nav.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false');
+    window.scrollTo(0, 0);
+  }
+  menuBtn.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', String(open));
+  });
+  window.addEventListener('hashchange', show);
+  show();
+})();
+
+// Queue demo
 (function () {
   const ME = 'A-1204';
   const HOLD = 10;
@@ -402,7 +682,6 @@
   const $ = id => document.getElementById(id);
   const fmt = m => { m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); };
   const dur = m => m >= 60 ? Math.floor(m / 60) + ' h ' + (m % 60 ? (m % 60) + ' min' : '') : m + ' min';
-
   function toast(msg) { $('toast').textContent = msg; }
 
   function nextFree(b) {
@@ -468,7 +747,7 @@
 
     const e = etas();
     $('queue').innerHTML = state.queue.length
-      ? state.queue.map((q, i) => '<li class="' + (q.flat === ME ? 'me' : '') + '"><span>' + q.flat + (q.flat === ME ? ' (you)' : '') + ' · ' + dur(q.need) + '</span><span class="eta">' + (e[i] === 0 ? 'Next up' : 'from ' + fmt(state.t + e[i])) + '</span></li>').join('')
+      ? state.queue.map((q, i) => '<li class="' + (q.flat === ME ? 'me' : '') + '"><span>' + q.flat + (q.flat === ME ? ' (you)' : '') + ' · ' + dur(q.need) + '</span><span class="mono">' + (e[i] === 0 ? 'Next up' : 'from ' + fmt(state.t + e[i])) + '</span></li>').join('')
       : '<li class="empty">Nobody is waiting.</li>';
     $('qcount').textContent = state.queue.length + ' waiting';
 
@@ -476,7 +755,6 @@
     const onBay = state.bays.some(b => b.flat === ME);
     $('join').textContent = inQueue ? 'Leave queue' : 'Join queue as ' + ME;
     $('join').disabled = onBay;
-    $('join').style.opacity = onBay ? 0.5 : 1;
   }
 
   $('join').addEventListener('click', () => {
@@ -485,7 +763,7 @@
     else {
       state.queue.push({ flat: ME, need: 120 });
       const e = etas();
-      toast('You are number ' + state.queue.length + ' in line. Estimated start ' + fmt(state.t + e[e.length - 1]) + '. We will notify you when a bay frees up.');
+      toast('You are number ' + state.queue.length + ' in line. Expected start ' + fmt(state.t + e[e.length - 1]) + '. We will notify you when a charger frees up.');
       assign();
     }
     render();
@@ -495,6 +773,79 @@
 
   state = fresh();
   render();
+})();
+
+// Waitlist
+(function () {
+  const $ = id => document.getElementById(id);
+  const form = $('wl-form'), btn = $('wl-submit'), status = $('wl-status');
+  const fields = ['name', 'role', 'society', 'city', 'chargers', 'evs', 'contact'];
+  let ref = null, saved = null, ready = false;
+
+  function say(msg, kind) { status.textContent = msg; status.className = 'status' + (kind ? ' ' + kind : ''); }
+  const text = v => String(v == null ? '' : v);
+  const esc = s => text(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  function fill(d) {
+    fields.forEach(f => { if (d[f] != null) $('wl-' + f).value = d[f]; });
+    btn.textContent = 'Update my details';
+    say("You're on the waitlist. We'll be in touch.", 'ok');
+  }
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const missing = ['name', 'society', 'city', 'contact'].find(f => !$('wl-' + f).value.trim());
+    if (missing) { say('Please fill in your ' + (missing === 'contact' ? 'phone or email' : missing === 'society' ? 'society name' : missing) + '.', 'err'); $('wl-' + missing).focus(); return; }
+    if (!ready) { say('Signups open here once you are signed in to claude.ai. Please try again in a moment.', 'err'); return; }
+    if (!ref) { say("This page can't take signups for your account. Ask the EVNest team for an invite link.", 'err'); return; }
+    const num = f => { const v = parseInt($('wl-' + f).value, 10); return Number.isFinite(v) && v >= 0 ? v : null; };
+    const data = {
+      name: $('wl-name').value.trim(), role: $('wl-role').value, society: $('wl-society').value.trim(),
+      city: $('wl-city').value.trim(), chargers: num('chargers'), evs: num('evs'), contact: $('wl-contact').value.trim(),
+      createdAt: saved && saved.createdAt ? saved.createdAt : new Date().toISOString(), updatedAt: new Date().toISOString()
+    };
+    btn.disabled = true; say('Saving…');
+    try {
+      await ref.set(data);
+      saved = data; fill(data);
+    } catch (err) {
+      if (err && err.code === 'invalid_argument') { ref = null; say("This page can't take signups for your account. Ask the EVNest team for an invite link.", 'err'); }
+      else if (err && err.code === 'quota_exceeded') say('The waitlist is full right now. Please check back soon.', 'err');
+      else say("Couldn't save just now. Check your connection and try again.", 'err');
+    } finally { btn.disabled = false; }
+  });
+
+  function renderOwner(snap) {
+    $('owner-count').textContent = snap.size + (snap.size === 1 ? ' signup' : ' signups') + ' · only you can see this list';
+    if (snap.empty) { $('owner-rows').innerHTML = '<tr><td class="empty" colspan="8">No signups yet. They\'ll show up here as people join.</td></tr>'; return; }
+    $('owner-rows').innerHTML = snap.docs.map(d => {
+      const r = d.data() || {};
+      const when = r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '';
+      return '<tr><td>' + esc(when) + '</td><td>' + esc(r.name) + '</td><td>' + esc(r.role) + '</td><td>' + esc(r.society) + '</td><td>' + esc(r.city) +
+        '</td><td class="num">' + esc(r.chargers ?? '') + '</td><td class="num">' + esc(r.evs ?? '') + '</td><td>' + esc(r.contact) + '</td></tr>';
+    }).join('');
+  }
+
+  async function start() {
+    if (!window.claude || typeof window.claude.use !== 'function') { ready = true; return; }
+    const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+    ready = true;
+    if (!db || !user) return;
+    const id = await user.id();
+    if (!id) return;
+    ref = db.doc('waitlist/' + id);
+    try {
+      const snap = await ref.get();
+      if (snap.exists) { saved = snap.data(); fill(saved); }
+    } catch (_) {}
+    if (await user.isOwner()) {
+      $('owner').hidden = false;
+      db.collection('waitlist').orderBy('createdAt', 'desc').onSnapshot(renderOwner, () => {
+        $('owner-count').textContent = "Couldn't load signups. Reload the page to try again.";
+      });
+    }
+  }
+  start();
 })();
 </script>
 </body>
