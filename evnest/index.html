@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EVNest</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: split hero (pitch left, live charger queue right), then a single column of plain sections. The queue panel is the one bold element. */
+  :root {
+    --bg: #f2f4f7;
+    --surface: #ffffff;
+    --sunk: #e7ebf1;
+    --fg: #121a2b;
+    --muted: #5a6478;
+    --line: #d5dbe5;
+    --accent: #2544d6;
+    --accent-ink: #ffffff;
+    --charging: #2544d6;
+    --hold: #b7790a;
+    --hold-bg: #fbefd6;
+    --free: #1f8a52;
+    --free-bg: #dcf2e5;
+    --display: "Archivo", "Arial Narrow", Arial, sans-serif;
+    --body: "Instrument Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d1220; --surface: #151c2e; --sunk: #1b2338; --fg: #e6eaf2; --muted: #98a2b6; --line: #263048;
+      --accent: #7b93ff; --accent-ink: #0d1220; --charging: #7b93ff;
+      --hold: #f2b84b; --hold-bg: #3a2c10; --free: #4cc38a; --free-bg: #12301f;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1220; --surface: #151c2e; --sunk: #1b2338; --fg: #e6eaf2; --muted: #98a2b6; --line: #263048;
+    --accent: #7b93ff; --accent-ink: #0d1220; --charging: #7b93ff;
+    --hold: #f2b84b; --hold-bg: #3a2c10; --free: #4cc38a; --free-bg: #12301f;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+  body {
+    background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 1rem; line-height: 1.6;
+  }
+  .band { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .inner { max-width: 72rem; margin: 0 auto; }
+
+  h1, h2, h3 { font-family: var(--display); font-stretch: 112%; margin: 0; text-wrap: balance; letter-spacing: -0.015em; }
+  h1 { font-size: clamp(2.3rem, 5.6vw, 4rem); font-weight: 800; line-height: 1.02; }
+  h2 { font-size: clamp(1.6rem, 3.4vw, 2.3rem); font-weight: 750; line-height: 1.1; }
+  h3 { font-size: 1.1rem; font-weight: 700; font-stretch: 105%; letter-spacing: 0; }
+  p { margin: 0; }
+  .eyebrow { font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+  .lead { font-size: 1.15rem; color: var(--muted); max-width: 36rem; }
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  /* Nav */
+  nav.band { padding-block: 1.1rem; }
+  nav .inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .logo { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--display); font-weight: 800; font-stretch: 120%; font-size: 1.3rem; color: var(--fg); text-decoration: none; }
+  .logo svg { width: 26px; height: 26px; }
+  .nav-links { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center; }
+  .nav-links a { color: var(--fg); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
+  .nav-links a:hover { color: var(--accent); }
+
+  .btn { display: inline-flex; align-items: center; gap: 0.45rem; font-family: var(--body); font-weight: 600; font-size: 0.95rem; padding: 0.7rem 1.15rem; border-radius: 999px; border: 1.5px solid var(--fg); background: transparent; color: var(--fg); text-decoration: none; cursor: pointer; }
+  .btn:hover { background: var(--sunk); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn.primary:hover { filter: brightness(1.08); background: var(--accent); }
+  .btn.small { padding: 0.45rem 0.85rem; font-size: 0.85rem; }
+
+  /* Hero */
+  .hero { padding-block: 2.5rem 4.5rem; }
+  .hero .inner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 30rem); gap: 3rem; align-items: center; }
+  .pitch { display: grid; gap: 1.4rem; min-width: 0; }
+  .pitch h1 em { font-style: normal; color: var(--accent); }
+  .cta-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .spec { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; }
+
+  /* Queue panel */
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 1.2rem; display: grid; gap: 1rem; min-width: 0; box-shadow: 0 18px 40px -24px rgba(18, 26, 43, .35); }
+  .panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
+  .panel-head strong { font-family: var(--display); font-stretch: 110%; font-size: 1rem; }
+  .clock { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .example-tag { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); padding: 0.1rem 0.45rem; border-radius: 4px; }
+  .bays { display: grid; gap: 0.55rem; }
+  .bay { display: grid; grid-template-columns: 4.2rem minmax(0, 1fr) auto; gap: 0.75rem; align-items: center; padding: 0.7rem 0.8rem; border-radius: 12px; background: var(--sunk); }
+  .bay-id { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); line-height: 1.25; }
+  .bay-id b { display: block; color: var(--fg); font-size: 0.9rem; font-weight: 500; }
+  .bay-main { min-width: 0; display: grid; gap: 0.35rem; }
+  .bay-flat { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--charging); border-radius: 3px; transition: width .4s ease; }
+  .pill { font-family: var(--mono); font-size: 0.72rem; font-weight: 500; padding: 0.2rem 0.55rem; border-radius: 999px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .pill.charging { color: var(--charging); border: 1px solid var(--charging); }
+  .pill.hold { color: var(--hold); background: var(--hold-bg); }
+  .pill.free { color: var(--free); background: var(--free-bg); }
+  .bay.is-hold .bar i { background: var(--hold); }
+
+  .queue-head { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+  .queue { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; counter-reset: q; }
+  .queue li { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto; gap: 0.6rem; align-items: center; padding: 0.5rem 0.2rem; border-bottom: 1px dashed var(--line); font-size: 0.92rem; }
+  .queue li:last-child { border-bottom: 0; }
+  .queue li::before { counter-increment: q; content: counter(q); font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+  .queue li.me { color: var(--accent); font-weight: 600; }
+  .eta { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .queue .empty { grid-template-columns: 1fr; color: var(--muted); }
+  .queue .empty::before { content: none; }
+  .controls { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .toast { font-size: 0.85rem; color: var(--fg); background: var(--sunk); border-radius: 10px; padding: 0.55rem 0.75rem; min-height: 2.4rem; }
+
+  /* Sections */
+  section.band { padding-block: 4.5rem; }
+  section.alt { background: var(--surface); border-block: 1px solid var(--line); }
+  .sec-head { display: grid; gap: 0.75rem; margin-bottom: 2.5rem; max-width: 42rem; }
+
+  .problems { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem; }
+  .problems div { display: grid; gap: 0.5rem; align-content: start; }
+  .problems .q { font-family: var(--display); font-stretch: 108%; font-weight: 700; font-size: 1.15rem; line-height: 1.3; }
+  .problems p { color: var(--muted); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem; counter-reset: s; }
+  .steps li { display: grid; gap: 0.5rem; align-content: start; padding-top: 1rem; border-top: 3px solid var(--accent); counter-increment: s; }
+  .steps li::before { content: "Step " counter(s); font-family: var(--mono); font-size: 0.75rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  .steps p { color: var(--muted); }
+
+  .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+  .feature { display: grid; gap: 0.5rem; align-content: start; padding: 1.3rem; border-radius: 14px; background: var(--bg); border: 1px solid var(--line); }
+  .feature svg { width: 28px; height: 28px; color: var(--accent); }
+  .feature p { color: var(--muted); font-size: 0.95rem; }
+  .feature .unit { font-family: var(--mono); font-size: 0.78rem; color: var(--fg); }
+
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 3rem; align-items: start; }
+  .checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem; }
+  .checklist li { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); gap: 0.6rem; }
+  .checklist li::before { content: ""; width: 0.8rem; height: 0.8rem; margin-top: 0.4rem; border-radius: 3px; background: var(--accent); }
+  .checklist b { display: block; }
+  .checklist span { color: var(--muted); }
+
+  .statement { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; min-width: 0; }
+  .statement-head { display: flex; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; padding: 1rem 1.2rem; border-bottom: 1px solid var(--line); align-items: baseline; }
+  .statement-head strong { font-family: var(--display); font-stretch: 108%; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+  th, td { padding: 0.65rem 1.2rem; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { font-family: var(--mono); font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  td.num, th.num { text-align: right; }
+  tfoot td { font-weight: 600; border-bottom: 0; }
+  .statement-foot { padding: 0.8rem 1.2rem; font-size: 0.82rem; color: var(--muted); border-top: 1px solid var(--line); }
+
+  .rules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+  .rule { display: flex; gap: 0.9rem; align-items: center; padding: 0.9rem 1.1rem; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); }
+  .rule code { font-family: var(--mono); font-size: 0.82rem; padding: 0.2rem 0.5rem; border-radius: 6px; background: var(--sunk); color: var(--fg); white-space: nowrap; }
+  .rule span { min-width: 0; }
+
+  .closing .inner { display: grid; gap: 1.2rem; justify-items: start; }
+  .closing h2 { max-width: 40rem; }
+
+  footer.band { padding-block: 2rem; border-top: 1px solid var(--line); }
+  footer .inner { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); }
+
+  @media (max-width: 900px) {
+    .hero .inner, .split { grid-template-columns: minmax(0, 1fr); }
+    .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 620px) {
+    .problems, .steps, .features, .rules { grid-template-columns: minmax(0, 1fr); }
+    .nav-links a:not(.btn) { display: none; }
+    section.band { padding-block: 3.2rem; }
+    .bay { grid-template-columns: 3.6rem minmax(0, 1fr) auto; gap: 0.55rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="band">
+  <div class="inner">
+    <a class="logo" href="#top" aria-label="EVNest home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 15 16 5l12 10v12H4z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M17.5 11 12.5 19h4l-1.5 6 5-8h-4z" fill="var(--accent)"/></svg>
+      EVNest
+    </a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#committees">For committees</a>
+      <a class="btn small primary" href="#demo">Try the queue</a>
+    </div>
+  </div>
+</nav>
+
+<header class="band hero" id="top">
+  <div class="inner">
+    <div class="pitch">
+      <span class="eyebrow">EV charging for housing societies</span>
+      <h1>Three chargers. Forty EVs. <em>No more WhatsApp fights.</em></h1>
+      <p class="lead">EVNest gives your society a fair, automatic queue for its shared chargers. Residents join from their phone, get a ping when it's their turn, and pay for exactly the units they used on the monthly maintenance bill.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="#demo">Try the live queue</a>
+        <a class="btn" href="#committees">For RWA committees</a>
+      </div>
+      <div class="spec"><span>Works with 3.3 kW &amp; 7.4 kW AC chargers</span><span>Billing in ₹/kWh</span><span>Android · iOS · Web</span></div>
+    </div>
+
+    <div class="panel" id="demo" aria-live="polite">
+      <div class="panel-head">
+        <strong>Basement B1 · Charging bay</strong>
+        <span class="example-tag">Example society</span>
+      </div>
+      <div class="panel-head">
+        <span class="clock" id="clock">Today 19:40</span>
+        <span class="clock">3 × 7.4 kW AC</span>
+      </div>
+      <div class="bays" id="bays"></div>
+      <div class="queue-head">
+        <span class="eyebrow">Waiting list</span>
+        <span class="clock" id="qcount"></span>
+      </div>
+      <ol class="queue" id="queue"></ol>
+      <div class="controls">
+        <button class="btn small primary" id="join" type="button">Join queue as A-1204</button>
+        <button class="btn small" id="advance" type="button">Skip ahead 15 min</button>
+        <button class="btn small" id="reset" type="button">Reset</button>
+      </div>
+      <div class="toast" id="toast">Tap "Join queue" to see how residents line up for the next free charger.</div>
+    </div>
+  </div>
+</header>
+
+<section class="band alt">
+  <div class="inner">
+    <div class="sec-head">
+      <span class="eyebrow">The shared-charger problem</span>
+      <h2>Every society with EVs hits the same three questions.</h2>
+    </div>
+    <div class="problems">
+      <div><p class="q">"Is any charger free right now?"</p><p>Residents walk down to the basement to check, or post in the group and wait for replies.</p></div>
+      <div><p class="q">"Whose car is still plugged in at 100%?"</p><p>Fully charged cars block the bay for hours while the next person waits upstairs.</p></div>
+      <div><p class="q">"Who used how many units?"</p><p>The facility team copies meter readings into a spreadsheet and splits the bill by hand.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="how">
+  <div class="inner">
+    <div class="sec-head">
+      <span class="eyebrow">How it works</span>
+      <h2>From "anyone free?" to plugged in, without a single message.</h2>
+    </div>
+    <ol class="steps">
+      <li><h3>Join the queue</h3><p>Open the app, pick how long you need, and tap Join. You see your place in line and an estimated start time.</p></li>
+      <li><h3>Get your turn</h3><p>When a bay frees up, EVNest notifies the next flat and holds the charger for 10 minutes.</p></li>
+      <li><h3>Plug in and charge</h3><p>Scan the bay's QR code to start. Track progress, units drawn and cost live on your phone.</p></li>
+      <li><h3>Unplug and release</h3><p>Get a reminder when your session ends. The bay goes straight to the next person in line.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="band alt" id="features">
+  <div class="inner">
+    <div class="sec-head">
+      <span class="eyebrow">Features</span>
+      <h2>Built for a few chargers shared by many flats.</h2>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h11M4 18h7"/></svg>
+        <h3>Fair queue</h3>
+        <p>First come, first served across all bays, with estimated start times that update as sessions end early or run long.</p>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
+        <h3>Plug-in hold</h3>
+        <p>The next flat gets a short window to plug in. Miss it and the bay passes on, so nobody waits on a no-show.</p>
+        <span class="unit">Default hold: 10 min</span>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>
+        <h3>Idle alerts</h3>
+        <p>Owners get a nudge when the battery is full. An optional idle fee kicks in if the car keeps sitting on the charger.</p>
+        <span class="unit">e.g. ₹2 per idle minute after 15 min</span>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+        <h3>Per-flat billing</h3>
+        <p>Every session is metered in kWh and priced at the society's rate. Totals export straight into the maintenance bill.</p>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
+        <h3>Load management</h3>
+        <p>Keeps total draw within the society's sanctioned load, so chargers never trip the building's main supply.</p>
+        <span class="unit">e.g. 3 bays × 7.4 kW = 22.2 kW cap</span>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        <h3>Overnight slots</h3>
+        <p>Book a bay for the off-peak window ahead of time, with cheaper night tariffs where your DISCOM offers time-of-day rates.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="committees">
+  <div class="inner split">
+    <div style="display:grid;gap:1.5rem;min-width:0">
+      <div class="sec-head" style="margin-bottom:0">
+        <span class="eyebrow">For RWA &amp; management committees</span>
+        <h2>Run the chargers without running a spreadsheet.</h2>
+        <p class="lead">One dashboard for the committee and facility manager. Set the rules once and EVNest enforces them for every resident.</p>
+      </div>
+      <ul class="checklist">
+        <li><div><b>Monthly statements per flat</b><span>Sessions, units and amount, ready to add to maintenance.</span></div></li>
+        <li><div><b>Charger health and usage</b><span>See uptime, faults and which bays are busiest by hour.</span></div></li>
+        <li><div><b>Resident approvals</b><span>Only verified flats with a registered EV can join the queue.</span></div></li>
+        <li><div><b>Guard and facility view</b><span>A simple screen at the basement desk shows who's on each bay.</span></div></li>
+      </ul>
+    </div>
+
+    <div class="statement">
+      <div class="statement-head">
+        <strong>EV charging statement · September</strong>
+        <span class="example-tag">Example data</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Flat</th><th class="num">Sessions</th><th class="num">Units (kWh)</th><th class="num">Amount</th></tr></thead>
+          <tbody>
+            <tr><td>A-0402</td><td class="num">14</td><td class="num">186.4</td><td class="num">₹2,050</td></tr>
+            <tr><td>A-1204</td><td class="num">9</td><td class="num">121.0</td><td class="num">₹1,331</td></tr>
+            <tr><td>B-1101</td><td class="num">17</td><td class="num">232.8</td><td class="num">₹2,561</td></tr>
+            <tr><td>C-0803</td><td class="num">6</td><td class="num">74.5</td><td class="num">₹820</td></tr>
+            <tr><td>D-0207</td><td class="num">11</td><td class="num">142.2</td><td class="num">₹1,564</td></tr>
+          </tbody>
+          <tfoot><tr><td>Total</td><td class="num">57</td><td class="num">756.9</td><td class="num">₹8,326</td></tr></tfoot>
+        </table>
+      </div>
+      <div class="statement-foot">Rate set by the committee: ₹11.00 per kWh, rounded to the nearest rupee.</div>
+    </div>
+  </div>
+</section>
+
+<section class="band alt">
+  <div class="inner">
+    <div class="sec-head">
+      <span class="eyebrow">House rules, your way</span>
+      <h2>The committee sets the rules. The app keeps everyone to them.</h2>
+    </div>
+    <div class="rules">
+      <div class="rule"><code>max 3 h</code><span>Longest session allowed during peak hours, 6 pm to 11 pm.</span></div>
+      <div class="rule"><code>hold 10 min</code><span>Time to plug in after your turn comes up.</span></div>
+      <div class="rule"><code>1 active</code><span>One queue spot per flat at a time, however many cars it has.</span></div>
+      <div class="rule"><code>&lt; 20% first</code><span>Optional priority for cars below 20% battery.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band closing">
+  <div class="inner">
+    <span class="eyebrow">Get started</span>
+    <h2>Bring EVNest to your society's charging bay.</h2>
+    <p class="lead">Setup takes an afternoon: register the chargers, invite residents by flat number, and set your rate. Try the queue above to see what residents get.</p>
+    <a class="btn primary" href="#demo">Try the live queue</a>
+  </div>
+</section>
+
+<footer class="band">
+  <div class="inner">
+    <span>© 2026 EVNest</span>
+    <span>Shared EV charging for housing societies</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  const ME = 'A-1204';
+  const HOLD = 10;
+  let state;
+
+  function fresh() {
+    return {
+      t: 19 * 60 + 40,
+      bays: [
+        { id: 'Bay 1', flat: 'C-0803', status: 'charging', left: 22, total: 90 },
+        { id: 'Bay 2', flat: 'A-0402', status: 'charging', left: 95, total: 120 },
+        { id: 'Bay 3', flat: 'B-1101', status: 'charging', left: 48, total: 150 }
+      ],
+      queue: [
+        { flat: 'D-0207', need: 120 },
+        { flat: 'A-1504', need: 90 }
+      ]
+    };
+  }
+
+  const $ = id => document.getElementById(id);
+  const fmt = m => { m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); };
+  const dur = m => m >= 60 ? Math.floor(m / 60) + ' h ' + (m % 60 ? (m % 60) + ' min' : '') : m + ' min';
+
+  function toast(msg) { $('toast').textContent = msg; }
+
+  function nextFree(b) {
+    if (b.status === 'free') return 0;
+    if (b.status === 'hold') return b.left + b.total;
+    return b.left;
+  }
+
+  function etas() {
+    const free = state.bays.map(nextFree);
+    return state.queue.map(q => {
+      let i = 0;
+      free.forEach((v, j) => { if (v < free[i]) i = j; });
+      const start = free[i];
+      free[i] = start + q.need;
+      return start;
+    });
+  }
+
+  function assign() {
+    state.bays.forEach(b => {
+      if (b.status === 'free' && state.queue.length) {
+        const q = state.queue.shift();
+        b.flat = q.flat; b.status = 'hold'; b.left = HOLD; b.total = q.need;
+        toast(q.flat === ME
+          ? 'Your turn! ' + b.id + ' is held for you for ' + HOLD + ' minutes. Scan its QR code to start charging.'
+          : b.id + ' is free. ' + q.flat + ' has been notified and has ' + HOLD + ' minutes to plug in.');
+      }
+    });
+  }
+
+  function tick() {
+    state.t++;
+    state.bays.forEach(b => {
+      if (b.status === 'free') return;
+      b.left--;
+      if (b.left > 0) return;
+      if (b.status === 'hold') {
+        b.status = 'charging'; b.left = b.total;
+        if (b.flat === ME) toast('You plugged in at ' + b.id + '. Charging for ' + dur(b.total) + '.');
+      } else {
+        const who = b.flat;
+        b.status = 'free'; b.flat = ''; b.left = 0;
+        toast(who === ME ? 'Your session on ' + b.id + ' is done. Unplug so the next flat can charge.' : who + ' finished on ' + b.id + '.');
+      }
+    });
+    assign();
+  }
+
+  function render() {
+    $('clock').textContent = 'Today ' + fmt(state.t);
+    $('bays').innerHTML = state.bays.map(b => {
+      let pill, sub, pct;
+      if (b.status === 'free') { pill = '<span class="pill free">Free</span>'; sub = 'Available now'; pct = 0; }
+      else if (b.status === 'hold') { pill = '<span class="pill hold">Held · ' + b.left + ' min</span>'; sub = b.flat + ' · plugging in'; pct = (HOLD - b.left) / HOLD * 100; }
+      else { pill = '<span class="pill charging">' + dur(b.left) + ' left</span>'; sub = b.flat; pct = (b.total - b.left) / b.total * 100; }
+      const mine = b.flat === ME ? ' (you)' : '';
+      return '<div class="bay' + (b.status === 'hold' ? ' is-hold' : '') + '">' +
+        '<div class="bay-id"><b>' + b.id + '</b>7.4 kW</div>' +
+        '<div class="bay-main"><span class="bay-flat">' + sub + mine + '</span><div class="bar"><i style="width:' + pct.toFixed(0) + '%"></i></div></div>' +
+        pill + '</div>';
+    }).join('');
+
+    const e = etas();
+    $('queue').innerHTML = state.queue.length
+      ? state.queue.map((q, i) => '<li class="' + (q.flat === ME ? 'me' : '') + '"><span>' + q.flat + (q.flat === ME ? ' (you)' : '') + ' · ' + dur(q.need) + '</span><span class="eta">' + (e[i] === 0 ? 'Next up' : 'from ' + fmt(state.t + e[i])) + '</span></li>').join('')
+      : '<li class="empty">Nobody is waiting.</li>';
+    $('qcount').textContent = state.queue.length + ' waiting';
+
+    const inQueue = state.queue.some(q => q.flat === ME);
+    const onBay = state.bays.some(b => b.flat === ME);
+    $('join').textContent = inQueue ? 'Leave queue' : 'Join queue as ' + ME;
+    $('join').disabled = onBay;
+    $('join').style.opacity = onBay ? 0.5 : 1;
+  }
+
+  $('join').addEventListener('click', () => {
+    const i = state.queue.findIndex(q => q.flat === ME);
+    if (i >= 0) { state.queue.splice(i, 1); toast('You left the queue.'); }
+    else {
+      state.queue.push({ flat: ME, need: 120 });
+      const e = etas();
+      toast('You are number ' + state.queue.length + ' in line. Estimated start ' + fmt(state.t + e[e.length - 1]) + '. We will notify you when a bay frees up.');
+      assign();
+    }
+    render();
+  });
+  $('advance').addEventListener('click', () => { for (let i = 0; i < 15; i++) tick(); render(); });
+  $('reset').addEventListener('click', () => { state = fresh(); toast('Demo reset to 19:40.'); render(); });
+
+  state = fresh();
+  render();
+})();
+</script>
+</body>
+</html>
