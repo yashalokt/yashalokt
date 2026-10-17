@@ -214,6 +214,16 @@
   .owner-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
   .owner td.empty { color: var(--muted); white-space: normal; }
 
+  /* Contact */
+  .contact { display: grid; gap: 0.75rem; padding: 1.2rem 1.3rem; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); width: 100%; max-width: 26rem; }
+  .contact-name { font-family: var(--display); font-weight: 600; font-size: 1.05rem; }
+  .contact-num { font-family: var(--display); font-weight: 700; font-size: 1.5rem; letter-spacing: 0.01em; color: var(--purple); user-select: all; font-variant-numeric: tabular-nums; }
+  .contact .cta-row { gap: 0.5rem; }
+  .wa { background: #1f9d55; border-color: #1f9d55; color: #ffffff; }
+  .wa:hover { background: #1f9d55; filter: brightness(1.08); }
+  .foot-contact { font-size: 0.92rem; color: var(--muted); }
+  .foot-contact a { color: var(--purple); font-weight: 600; text-decoration: none; }
+
   /* Footer */
   footer { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 2.5rem; border-top: 1px solid var(--line); background: var(--surface); }
   footer .inner { display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; align-items: center; }
@@ -344,7 +354,7 @@
         </div>
         <div class="cta-row">
           <a class="btn solid-light" href="#waitlist">Join the waitlist</a>
-          <a class="btn light" href="#societies">Info for committees</a>
+          <a class="btn light" href="https://wa.me/917007839483?text=Hi%20Yash%2C%20I%27d%20like%20to%20know%20more%20about%20EVNest%20for%20my%20society.">WhatsApp +91 70078 39483</a>
         </div>
       </div>
     </section>
@@ -539,6 +549,7 @@
           <details><summary>How is the electricity bill split?</summary><p>Each charging session is measured in units (kWh) and multiplied by the rate your committee sets. At the end of the month, each flat's total is ready to add to its maintenance bill.</p></details>
           <details><summary>Who can use the chargers?</summary><p>Only residents the committee has approved. Each flat registers its EV before it can join the queue.</p></details>
           <details><summary>When can our society start?</summary><p>We're onboarding a small group of societies first. <a href="#waitlist">Join the waitlist</a> and we'll contact you.</p></details>
+          <details><summary>How do I contact EVNest?</summary><p>Call or WhatsApp Yash Tiwari on <b>+91 70078 39483</b>, or <a href="https://wa.me/917007839483">start a WhatsApp chat</a>.</p></details>
         </div>
       </div>
     </section>
@@ -554,6 +565,16 @@
             <span class="eyebrow">Early access</span>
             <h1>Join the EVNest waitlist.</h1>
             <p class="lead">Tell us about your society. We'll get in touch to set up your chargers, residents and rate.</p>
+            <div class="contact" id="contact">
+              <span class="eyebrow">Prefer to talk? Call or WhatsApp</span>
+              <span class="contact-name">Yash Tiwari, EVNest</span>
+              <span class="contact-num">+91 70078 39483</span>
+              <div class="cta-row">
+                <a class="btn small wa" href="https://wa.me/917007839483?text=Hi%20Yash%2C%20I%27d%20like%20to%20know%20more%20about%20EVNest%20for%20my%20society.">Chat on WhatsApp</a>
+                <a class="btn small" href="tel:+917007839483">Call</a>
+                <button class="btn small" type="button" data-copy="+91 70078 39483">Copy number</button>
+              </div>
+            </div>
           </div>
           <form class="form" id="wl-form" novalidate>
             <div class="row">
@@ -611,6 +632,7 @@
     <div class="foot-links">
       <a href="#how">How it works</a><a href="#features">Features</a><a href="#societies">For societies</a><a href="#faq">FAQ</a><a href="#waitlist">Waitlist</a>
     </div>
+    <span class="foot-contact">Yash Tiwari · Call / <a href="https://wa.me/917007839483">WhatsApp</a> <b>+91 70078 39483</b></span>
     <span class="copy">© 2026 EVNest</span>
   </div>
 </footer>
@@ -657,6 +679,15 @@
   window.addEventListener('hashchange', show);
   show();
 })();
+
+// Copy buttons
+document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => {
+  const label = b.textContent;
+  navigator.clipboard.writeText(b.dataset.copy).then(
+    () => { b.textContent = 'Copied'; setTimeout(() => { b.textContent = label; }, 1500); },
+    () => { const s = getSelection(), r = document.createRange(); r.selectNodeContents(b.closest('.contact').querySelector('.contact-num')); s.removeAllRanges(); s.addRange(r); }
+  );
+}));
 
 // Queue demo
 (function () {
