@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Yashalok T</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: one narrow reading column; a hero contribution grid is the single visual moment. */
+  :root {
+    --bg: #f5f7f6;
+    --surface: #ffffff;
+    --fg: #17201c;
+    --muted: #5b6862;
+    --line: #dbe2de;
+    --accent: #1f7a4d;
+    --cell-0: #e3e9e5;
+    --cell-1: #b4dcc3;
+    --cell-2: #6fbf8d;
+    --cell-3: #2f9a5e;
+    --cell-4: #1a6b40;
+    --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    --body: "Newsreader", Georgia, "Times New Roman", serif;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1412; --surface: #161d1a; --fg: #e4ebe7; --muted: #94a39c; --line: #26302c;
+      --accent: #5fcf8f; --cell-0: #1c2420; --cell-1: #1d4a32; --cell-2: #23744a; --cell-3: #39a868; --cell-4: #6edc9a;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1412; --surface: #161d1a; --fg: #e4ebe7; --muted: #94a39c; --line: #26302c;
+    --accent: #5fcf8f; --cell-0: #1c2420; --cell-1: #1d4a32; --cell-2: #23744a; --cell-3: #39a868; --cell-4: #6edc9a;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--body);
+    font-size: 1.125rem;
+    line-height: 1.6;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0;
+  }
+  .wrap { max-width: 44rem; margin: 0 auto; padding-block: 3.5rem 4rem; display: grid; gap: 3.5rem; }
+
+  header { display: grid; gap: 1.25rem; }
+  .handle { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); letter-spacing: 0.02em; }
+  .handle b { color: var(--accent); font-weight: 500; }
+  h1 {
+    font-family: var(--display); font-weight: 700; font-size: clamp(2.6rem, 9vw, 4.4rem);
+    line-height: 0.98; letter-spacing: -0.03em; margin: 0; text-wrap: balance;
+  }
+  .lede { margin: 0; max-width: 34rem; font-size: 1.25rem; color: var(--fg); }
+
+  .grid-box { overflow-x: auto; padding-block: 0.25rem; }
+  #grid { display: block; height: auto; max-width: 100%; }
+  .grid-cap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+  .legend { display: inline-flex; align-items: center; gap: 3px; }
+  .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  section { display: grid; gap: 1rem; }
+  h2 {
+    font-family: var(--mono); font-weight: 500; font-size: 0.78rem; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--muted); margin: 0; padding-bottom: 0.6rem; border-bottom: 1px solid var(--line);
+  }
+  p { margin: 0; }
+
+  .repo {
+    display: grid; gap: 0.35rem; padding: 1.1rem 1.25rem; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 8px; text-decoration: none; color: inherit;
+    transition: border-color .15s ease;
+  }
+  .repo:hover { border-color: var(--accent); }
+  .repo-name { font-family: var(--display); font-weight: 500; font-size: 1.2rem; color: var(--accent); }
+  .repo-meta { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+
+  ul.now { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+  ul.now li { display: grid; grid-template-columns: 5.5rem 1fr; gap: 1rem; }
+  ul.now span { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); padding-top: 0.25rem; }
+  ul.now p { min-width: 0; }
+
+  .links { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .btn {
+    font-family: var(--mono); font-size: 0.85rem; padding: 0.55rem 0.95rem; border-radius: 6px;
+    border: 1px solid var(--line); background: var(--surface); color: var(--fg); text-decoration: none; cursor: pointer;
+  }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .btn:hover { border-color: var(--accent); }
+  a:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  footer { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 1rem; }
+
+  @media (max-width: 480px) {
+    ul.now li { grid-template-columns: 1fr; gap: 0.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="handle">github.com/<b>yashalokt</b></div>
+    <h1>Hi, I'm Yashalok.</h1>
+    <p class="lede">I build things on the web and keep my work in the open on GitHub. This is my small corner of the internet: what I'm working on, and where to find me.</p>
+  </header>
+
+  <div>
+    <div class="grid-box"><canvas id="grid" width="728" height="112" aria-label="Decorative contribution-style grid"></canvas></div>
+    <div class="grid-cap">
+      <span>On GitHub since March 2020</span>
+      <span class="legend">Less <i style="background:var(--cell-0)"></i><i style="background:var(--cell-1)"></i><i style="background:var(--cell-2)"></i><i style="background:var(--cell-3)"></i><i style="background:var(--cell-4)"></i> More</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>About</h2>
+    <p>I like small, well-made tools and pages that load fast and say what they mean. Most of what I'm learning ends up as a repository first and a write-up later.</p>
+  </section>
+
+  <section>
+    <h2>Now</h2>
+    <ul class="now">
+      <li><span>Oct 2026</span><p>Setting up this personal site and my GitHub profile.</p></li>
+      <li><span>Next</span><p>Publishing my first projects and notes here as they ship.</p></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Projects</h2>
+    <a class="repo" href="https://github.com/yashalokt/yashalokt">
+      <span class="repo-name">yashalokt / yashalokt</span>
+      <span>My profile repository, and the source of this website.</span>
+      <span class="repo-meta">Public · HTML</span>
+    </a>
+  </section>
+
+  <section>
+    <h2>Contact</h2>
+    <div class="links">
+      <a class="btn primary" href="https://github.com/yashalokt">GitHub profile</a>
+      <button class="btn" id="copy" type="button">Copy GitHub link</button>
+    </div>
+  </section>
+
+  <footer>© 2026 Yashalok T · Built with plain HTML and CSS</footer>
+</div>
+
+<script>
+(function () {
+  const c = document.getElementById('grid');
+  const ctx = c.getContext('2d');
+  const cols = 52, rows = 7, size = 11, gap = 3;
+  const dpr = window.devicePixelRatio || 1;
+  const w = cols * (size + gap) - gap, h = rows * (size + gap) - gap;
+  c.width = w * dpr; c.height = h * dpr; c.style.width = w + 'px';
+  ctx.scale(dpr, dpr);
+  // Deterministic pseudo-random levels so the grid is the same on every load.
+  let seed = 62804159;
+  const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const levels = [];
+  for (let x = 0; x < cols; x++) for (let y = 0; y < rows; y++) {
+    const ramp = x / cols;
+    const r = rnd() * (0.6 + ramp);
+    levels.push(r < 0.45 ? 0 : r < 0.75 ? 1 : r < 1 ? 2 : r < 1.25 ? 3 : 4);
+  }
+  function draw() {
+    const s = getComputedStyle(document.documentElement);
+    const col = [0,1,2,3,4].map(i => s.getPropertyValue('--cell-' + i).trim());
+    ctx.clearRect(0, 0, w, h);
+    let i = 0;
+    for (let x = 0; x < cols; x++) for (let y = 0; y < rows; y++) {
+      ctx.fillStyle = col[levels[i++]];
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(x * (size + gap), y * (size + gap), size, size, 2)
+                    : ctx.rect(x * (size + gap), y * (size + gap), size, size);
+      ctx.fill();
+    }
+  }
+  draw();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
+  new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  const btn = document.getElementById('copy');
+  btn.addEventListener('click', () => {
+    const url = 'https://github.com/yashalokt';
+    navigator.clipboard.writeText(url).then(
+      () => { btn.textContent = 'Copied'; setTimeout(() => btn.textContent = 'Copy GitHub link', 1500); },
+      () => { btn.textContent = url; }
+    );
+  });
+})();
+</script>
+</body>
+</html>
